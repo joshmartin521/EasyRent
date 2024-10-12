@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <div class="form">
+      <form id="loginForm">
+        <label for="username">Username</label><br>
+        <input type="text" id="username" name="username"><br>
+
+        <label for="password">Password</label><br>
+        <input type="password" id="password" name="password"><br>
+        
+        <input type="submit" value="Submit">
+      </form>
+      <p>Don't have an account? <a href="/register">Register</a></p>
+    </div>
+    <img src="logo.png" alt="Site Logo" class="logo">
+  </body>
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', function(event) {
+      event.preventDefault(); // Prevent the form from refreshing the page
+      
+      // Collect form data
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      // Send a POST request to the server
+      fetch('/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: username, // Use 'username' field as email for login
+          password: password
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.message === "Login successful") {
+          alert('Login successful!');
+          // Optionally, redirect to another page upon success
+          window.location.href = '/dashboard.html'; 
+        } else {
+          alert(data.message); // Show error message
+        }
+      });
+    });
+  </script>
+</html>

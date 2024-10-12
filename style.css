@@ -1,0 +1,9 @@
+.form{
+    max-width: 50%;
+    text-align: right;
+}
+
+.logo {
+    max-width: 40%;  /* Adjust image size */
+    height: auto;
+  }
