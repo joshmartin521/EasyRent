@@ -7,8 +7,10 @@ const path = require('path');
 const app = express();
 app.use(bodyParser.json());
 
+const googleApiKey = process.env.GOOGLE_API_KEY;
+
 const firebaseConfig = {
-  apiKey: "AIzaSyCkXjV21s_PhJcslSh9-P6mutkDQaWsk0Q",
+  apiKey: googleApiKey,
   authDomain: "easyrent-9b025.firebaseapp.com",
   databaseURL: "https://easyrent-9b025-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "easyrent-9b025",
