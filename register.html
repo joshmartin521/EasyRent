@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/css/style.css">
     <title>Registration Page</title>
 </head>
 <body>
-    <div class="form">
+    <div class="container">
+        <img src="/images/logo.png" alt="Site Logo" class="logo">
+        <div class="form">
         <form id="registrationForm">
             <label for="email">Email:</label><br>
             <input type="email" id="email" name="email" required><br>
@@ -28,8 +30,8 @@
             <input type="submit" value="Register">
         </form>
         <p>Already have an account? <a href="/">Login</a></p>
+        </div>
     </div>
-    <img src="logo.png" alt="Site Logo" class="logo">
 
     <script>
         document.getElementById('registrationForm').addEventListener('submit', function(event) {

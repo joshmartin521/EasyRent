@@ -1,0 +1,32 @@
+/* Container to hold logo and form side by side */
+.container {
+    display: flex;
+    align-items: center;
+    max-width: 100%; /* Keep the container full width */
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  /* Styling for the logo */
+  .logo {
+    max-width: 40%; /* Adjust image size */
+    height: auto;
+  }
+  
+  /* Styling for the form */
+  .form {
+    max-width: 40%; /* Adjust form width */
+    padding-left: 20%; /* Add padding inside the form to create space */
+    text-align: left; /* Align text to the left */
+  }
+  
+  form input[type="email"],
+  form input[type="text"],
+  form input[type="password"] {
+    width: 100%; /* Make input fields take up full width of the form */
+    margin-bottom: 10px; /* Add some space between fields */
+  }
+  
+  form input[type="submit"] {
+    width: 100%; /* Full width submit button */
+  }

@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/css/style.css">
   </head>
   <body>
-    <div class="form">
+    <div class="container">
+      <img src="/images/logo.png" alt="Site Logo" class="logo">
+      <div class="form">
+        <h1>Login</h1>
       <form id="loginForm">
         <label for="username">Username</label><br>
-        <input type="text" id="username" name="username"><br>
+        <input type="email" id="username" name="username"><br>
 
         <label for="password">Password</label><br>
         <input type="password" id="password" name="password"><br>
@@ -16,7 +19,7 @@
       </form>
       <p>Don't have an account? <a href="/register">Register</a></p>
     </div>
-    <img src="logo.png" alt="Site Logo" class="logo">
+    </div>
   </body>
   <script>
     document.getElementById('loginForm').addEventListener('submit', function(event) {
