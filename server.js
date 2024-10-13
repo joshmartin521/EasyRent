@@ -5,9 +5,12 @@ const { getDatabase, ref, set, get } = require("firebase/database");
 const bodyParser = require('body-parser');
 const path = require('path');
 const session = require('express-session');
+const cors = require('cors');
+const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } = require('firebase/auth');
 
 const app = express();
 app.use(bodyParser.json());
+app.use(cors());
 
 app.use(session({
     secret: process.env.SESSION_SECRET, 
@@ -21,7 +24,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 const googleApiKey = process.env.GOOGLE_API_KEY;
 
 const firebaseConfig = {
-  apiKey: process.env.googleApiKey,
+  apiKey: googleApiKey,
   authDomain: "easyrent-9b025.firebaseapp.com",
   databaseURL: "https://easyrent-9b025-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "easyrent-9b025",
@@ -32,7 +35,9 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-initializeApp(firebaseConfig);
+const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
+const db = getDatabase(firebaseApp);
 
 function sanitizeEmail(email) {
     return email.replace(/[.#$[\]]/g, '_');
@@ -61,91 +66,66 @@ app.get('/register', (req, res) => {
     res.sendFile(path.join(__dirname, 'register.html'));
 });
 
-const bcrypt = require('bcrypt');
+// Serve the reset page
+app.get('/resetPassword', (req, res) => {
+    res.sendFile(path.join(__dirname, 'resetPassword.html'));
+});
 
-// Modify the register route to hash passwords
-app.post('/register', (req, res) => {
+// Registration route
+app.post('/register', async (req, res) => {
     const { email, password, role } = req.body;
 
-    // Validate input fields
     if (!email || !password || !role) {
         return res.status(400).json({ message: "Email, password, and role are required" });
     }
 
-    // Hash the password before storing it
-    const saltRounds = 10;
-    bcrypt.hash(password, saltRounds, (err, hashedPassword) => {
-        if (err) {
-            return res.status(500).json({ message: "Error hashing password" });
-        }
-
-        // Sanitize email
+    try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        
+        // Store the user's role in Realtime Database
         const sanitizedEmail = sanitizeEmail(email);
-        const reference = ref(getDatabase(), 'users/' + sanitizedEmail);
+        const reference = ref(db, 'users/' + sanitizedEmail);
+        await set(reference, { email, role });
 
-        // Check if user already exists
-        get(reference)
-            .then((snapshot) => {
-                if (snapshot.exists()) {
-                    return res.status(409).json({ message: "Email is already in use" });
-                }
-
-                // Store the user with the hashed password
-                set(reference, {
-                    email: email,
-                    password: hashedPassword, // Store the hashed password
-                    role: role
-                })
-                .then(() => {
-                    res.status(200).json({ message: "User registered successfully" });
-                });
-            });
-    });
+        res.status(200).json({ message: "User registered successfully" });
+    } catch (error) {
+        if (error.code === 'auth/email-already-in-use') {
+            return res.status(409).json({ message: "Email is already in use" });
+        }
+        return res.status(500).json({ message: "Error during registration" });
+    }
 });
 
-app.post('/login', (req, res) => {
+// Login route
+app.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
         return res.status(400).json({ message: "Email and password are required" });
     }
 
-    const db = getDatabase();
-    const sanitizedEmail = sanitizeEmail(email);
-    const reference = ref(db, 'users/' + sanitizedEmail);
+    try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        
+        // Retrieve user role from Realtime Database
+        const sanitizedEmail = sanitizeEmail(email);
+        const reference = ref(db, 'users/' + sanitizedEmail);
+        const snapshot = await get(reference);
 
-    // Retrieve the user's details from Firebase
-    get(reference)
-        .then((snapshot) => {
-            if (snapshot.exists()) {
-                const userData = snapshot.val();
-
-                // Compare the entered password with the stored hashed password
-                bcrypt.compare(password, userData.password, (err, result) => {
-                    if (err) {
-                        return res.status(500).json({ message: "Error comparing passwords" });
-                    }
-
-                    if (result) {
-                        // Store user role in the session
-                        req.session.role = userData.role;
-                        // Send back user role along with success message
-                        return res.status(200).json({
-                            message: "Login successful",
-                            role: userData.role // Ensure the role is stored in the user data
-                        });
-                    } else {
-                        res.status(401).json({ message: "Incorrect password" });
-                    }
-                });
-            } else {
-                res.status(404).json({ message: "User not found" });
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching user data:', error);
-            res.status(500).json({ message: "Internal server error" });
-        });
+        if (snapshot.exists()) {
+            const userData = snapshot.val();
+            req.session.role = userData.role; // Store user role in the session
+            return res.status(200).json({
+                message: "Login successful",
+                role: userData.role
+            });
+        } else {
+            return res.status(404).json({ message: "User not found" });
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        return res.status(401).json({ message: "Incorrect email or password" });
+    }
 });
 
 // Start the server

@@ -61,13 +61,21 @@
                     role: userType // Send user type
                 })
             })
-            .then(response => response.json())
+            .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => { throw new Error(err.message); });
+            }
+            return response.json();
+            })
             .then(data => {
                 alert(data.message); // Show server response
                 if (data.message === "User registered successfully") {
                     // Optionally redirect to login page after successful registration
                     window.location.href = '/';
                 }
+            })
+            .catch(error => {
+                alert("Error: " + error.message); // Show error message
             });
         });
     </script>
