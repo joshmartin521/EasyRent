@@ -37,6 +37,9 @@ app.get('/register', (req, res) => {
     res.sendFile(path.join(__dirname, 'register.html'));
 });
 
+const bcrypt = require('bcrypt');
+
+// Modify the register route to hash passwords
 app.post('/register', (req, res) => {
     const { email, password, role } = req.body;
 
@@ -45,27 +48,35 @@ app.post('/register', (req, res) => {
         return res.status(400).json({ message: "Email, password, and role are required" });
     }
 
-    // Sanitize email
-    const sanitizedEmail = sanitizeEmail(email);
-    const reference = ref(getDatabase(), 'users/' + sanitizedEmail);
+    // Hash the password before storing it
+    const saltRounds = 10;
+    bcrypt.hash(password, saltRounds, (err, hashedPassword) => {
+        if (err) {
+            return res.status(500).json({ message: "Error hashing password" });
+        }
 
-    // Check if user already exists
-    get(reference)
-        .then((snapshot) => {
-            if (snapshot.exists()) {
-                return res.status(409).json({ message: "Email is already in use" }); // Conflict status
-            }
+        // Sanitize email
+        const sanitizedEmail = sanitizeEmail(email);
+        const reference = ref(getDatabase(), 'users/' + sanitizedEmail);
 
-            // If email doesn't exist, register the user
-            set(reference, {
-                email: email,
-                password: password,
-                role: role // Save the user's role (landlord or tenant)
-            })
-            .then(() => {
-                res.status(200).json({ message: "User registered successfully" });
+        // Check if user already exists
+        get(reference)
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    return res.status(409).json({ message: "Email is already in use" });
+                }
+
+                // Store the user with the hashed password
+                set(reference, {
+                    email: email,
+                    password: hashedPassword, // Store the hashed password
+                    role: role
+                })
+                .then(() => {
+                    res.status(200).json({ message: "User registered successfully" });
+                });
             });
-        });
+    });
 });
 
 app.post('/login', (req, res) => {
@@ -84,11 +95,19 @@ app.post('/login', (req, res) => {
         .then((snapshot) => {
             if (snapshot.exists()) {
                 const userData = snapshot.val();
-                if (userData.password === password) {
-                    res.status(200).json({ message: "Login successful" });
-                } else {
-                    res.status(401).json({ message: "Incorrect password" });
-                }
+
+                // Compare the entered password with the stored hashed password
+                bcrypt.compare(password, userData.password, (err, result) => {
+                    if (err) {
+                        return res.status(500).json({ message: "Error comparing passwords" });
+                    }
+
+                    if (result) {
+                        res.status(200).json({ message: "Login successful" });
+                    } else {
+                        res.status(401).json({ message: "Incorrect password" });
+                    }
+                });
             } else {
                 res.status(404).json({ message: "User not found" });
             }
