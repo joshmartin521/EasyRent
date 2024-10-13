@@ -1,18 +1,27 @@
+require('dotenv').config();
 const express = require('express');
 const { initializeApp } = require("firebase/app");
 const { getDatabase, ref, set, get } = require("firebase/database");
 const bodyParser = require('body-parser');
 const path = require('path');
+const session = require('express-session');
 
 const app = express();
 app.use(bodyParser.json());
+
+app.use(session({
+    secret: process.env.SESSION_SECRET, 
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false } // Set to true if using HTTPS
+}));
 
 app.use(express.static(path.join(__dirname, 'public')));
 
 const googleApiKey = process.env.GOOGLE_API_KEY;
 
 const firebaseConfig = {
-  apiKey: googleApiKey,
+  apiKey: process.env.googleApiKey,
   authDomain: "easyrent-9b025.firebaseapp.com",
   databaseURL: "https://easyrent-9b025-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "easyrent-9b025",
@@ -28,6 +37,19 @@ initializeApp(firebaseConfig);
 function sanitizeEmail(email) {
     return email.replace(/[.#$[\]]/g, '_');
 }
+
+// Single dashboard route
+app.get('/dashboard', (req, res) => {
+    const userRole = req.session.role;
+
+    if (userRole === 'tenant') {
+        res.sendFile(path.join(__dirname, 'tenant_dashboard.html'));
+    } else if (userRole === 'landlord') {
+        res.sendFile(path.join(__dirname, 'landlord_dashboard.html'));
+    } else {
+        res.status(403).send('Access denied'); 
+    }
+});
 
 // Serve the login page as the default route
 app.get('/', (req, res) => {
@@ -105,7 +127,13 @@ app.post('/login', (req, res) => {
                     }
 
                     if (result) {
-                        res.status(200).json({ message: "Login successful" });
+                        // Store user role in the session
+                        req.session.role = userData.role;
+                        // Send back user role along with success message
+                        return res.status(200).json({
+                            message: "Login successful",
+                            role: userData.role // Ensure the role is stored in the user data
+                        });
                     } else {
                         res.status(401).json({ message: "Incorrect password" });
                     }
@@ -113,6 +141,10 @@ app.post('/login', (req, res) => {
             } else {
                 res.status(404).json({ message: "User not found" });
             }
+        })
+        .catch(error => {
+            console.error('Error fetching user data:', error);
+            res.status(500).json({ message: "Internal server error" });
         });
 });
 

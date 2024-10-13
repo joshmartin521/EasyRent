@@ -1,55 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <link rel="stylesheet" href="/css/style.css">
-  </head>
-  <body>
+</head>
+<body>
     <div class="container">
-      <img src="/images/logo.png" alt="Site Logo" class="logo">
-      <div class="form">
-        <h1>Login</h1>
-      <form id="loginForm">
-        <label for="username">Username</label><br>
-        <input type="email" id="username" name="username"><br>
+        <img src="/images/logo.png" alt="Site Logo" class="logo">
+        <div class="form">
+            <h1>Login</h1>
+            <form id="loginForm">
+                <label for="username">Username</label><br>
+                <input type="email" id="username" name="username" required><br>
 
-        <label for="password">Password</label><br>
-        <input type="password" id="password" name="password"><br>
-        
-        <input type="submit" value="Submit">
-      </form>
-      <p>Don't have an account? <a href="/register">Register</a></p>
+                <label for="password">Password</label><br>
+                <input type="password" id="password" name="password" required><br>
+                
+                <input type="submit" value="Submit">
+            </form>
+            <p>Don't have an account? <a href="/register">Register</a></p>
+        </div>
     </div>
-    </div>
-  </body>
-  <script>
-    document.getElementById('loginForm').addEventListener('submit', function(event) {
-      event.preventDefault(); // Prevent the form from refreshing the page
-      
-      // Collect form data
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
+    
+    <script>
+      document.getElementById('loginForm').addEventListener('submit', function(event) {
+          event.preventDefault(); // Prevent the form from refreshing the page
+          
+          // Collect form data
+          const username = document.getElementById('username').value;
+          const password = document.getElementById('password').value;
 
-      // Send a POST request to the server
-      fetch('/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          email: username, // Use 'username' field as email for login
-          password: password
-        })
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.message === "Login successful") {
-          alert('Login successful!');
-          // Optionally, redirect to another page upon success
-          window.location.href = '/dashboard.html'; 
-        } else {
-          alert(data.message); // Show error message
-        }
+          // Send a POST request to the server
+          fetch('/login', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                  email: username,
+                  password: password
+              })
+          })
+          .then(response => response.json())
+          .then(data => {
+              if (data.message === "Login successful") {
+                  alert('Login successful!');
+                  // Store user role in session (or a more appropriate storage method)
+                  // Redirect to the dashboard route
+                  window.location.href = '/dashboard'; 
+              } else {
+                  alert(data.message); // Show error message
+              }
+          })
+          .catch(error => {
+              console.error('Error:', error);
+              alert('An error occurred during login. Please try again later.');
+          });
       });
-    });
-  </script>
+    </script>
+</body>
 </html>
