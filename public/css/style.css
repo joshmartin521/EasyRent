@@ -1,89 +1,131 @@
-/* Container to hold logo and form side by side */
-.container {
-    display: flex;
-    align-items: center;
-    max-width: 100%; /* Keep the container full width */
-    margin: 0 auto;
-    padding: 20px;
-  }
-  
-  /* Styling for the logo */
-  .logo {
-    max-width: 40%; /* Adjust image size */
-    height: auto;
-  }
-  
-  /* Styling for the form */
-  .form {
-    max-width: 40%; /* Adjust form width */
-    padding-left: 20%; /* Add padding inside the form to create space */
-    text-align: left; /* Align text to the left */
-  }
-  
-  form input[type="email"],
-  form input[type="text"],
-  form input[type="password"] {
-    width: 100%; /* Make input fields take up full width of the form */
-    margin-bottom: 10px; /* Add some space between fields */
-  }
-  
-  form input[type="submit"] {
-    width: 100%; /* Full width submit button */
-  }
-
-  body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  height: 100vh;
 }
 
-.reset-password-container {
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    width: 300px;
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* Full height of the page */
+}
+
+/* Top ribbon navigation */
+.top-nav {
+  background-color: #333;
+  color: white;
+  padding: 10px;
+  flex-shrink: 0; /* Ensure nav stays at the top */
+}
+
+.top-nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: space-around;
+}
+
+.top-nav ul li a {
+  color: white;
+  text-decoration: none;
+  padding: 10px 20px;
+  display: block;
+}
+
+.top-nav ul li a:hover {
+  background-color: #555;
+}
+
+/* Main content area */
+.content {
+  padding: 20px;
+  flex-grow: 1; /* Allows the content to grow and take up available space */
+  display: flex;
+  flex-direction: column;
 }
 
 h2 {
-    margin-bottom: 20px;
-    color: #333;
+  border-bottom: 2px solid #333;
+  padding-bottom: 10px;
 }
 
-label {
-    display: block;
-    margin-bottom: 10px;
-    color: #333;
+#property-list, #message-list {
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 4px;
 }
 
-input[type="email"] {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 20px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+/* Container to hold logo and form side by side */
+.container {
+  display: flex;
+  align-items: flex-start; /* Align items to the top */
+  max-width: 100%; /* Full width */
+  margin: 0 auto;
+  padding: 20px;
+  flex-grow: 1; /* Make the container take up available space */
 }
 
-button {
-    width: 100%;
-    padding: 10px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+/* Styling for the logo */
+.logo {
+  max-width: 40%; /* Adjust image size */
+  height: auto;
 }
 
-button:hover {
-    background-color: #0056b3;
+/* Styling for the form */
+.form {
+  max-width: 40%;
+  padding-left: 20%;
+  text-align: left;
 }
 
-#message {
-    color: green;
-    margin-top: 15px;
+form input[type="email"],
+form input[type="text"],
+form input[type="password"] {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+form input[type="submit"] {
+  width: 100%;
+}
+
+/* Search bar container */
+.search-container {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  background-color: #fff;
+}
+
+.search-container input[type="text"] {
+  width: 60%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.search-container button {
+  padding: 10px 20px;
+  margin-left: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.search-container button:hover {
+  background-color: #0056b3;
+}
+
+/* Main content area */
+.tenant-content {
+  flex-grow: 1;
+  padding: 20px;
+  background-color: #f9f9f9;
 }
